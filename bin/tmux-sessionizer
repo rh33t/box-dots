@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# Directories to scan for projects. TS_SEARCH_DIRS overrides them, as a
+# colon-separated list, e.g. "$HOME/dir1:$HOME/dir2".
+if [[ -n ${TS_SEARCH_DIRS:-} ]]; then
+  IFS=':' read -r -a search_dirs <<<"$TS_SEARCH_DIRS"
+else
+  search_dirs=(
+    "$HOME/projects"
+    "$HOME"
+  )
+fi
+
+if [[ $# -eq 1 ]]; then
+  selected=$1
+else
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "tmux-sessionizer: fzf is required for interactive selection" >&2
+    exit 1
+  fi
+  selected=$(
+    for dir in "${search_dirs[@]}"; do
+      [[ -d $dir ]] && find "$dir" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) -not -path '*/.*' 2>/dev/null
+    done | sort -u | fzf --color=bg+:-1,gutter:-1
+  )
+fi
+
+if [[ -z $selected ]]; then
+  exit 0
+fi
+
+selected_name="$(basename "$selected" | tr .: __)"
+tmux_running=$(pgrep tmux || true)
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+  tmux new-session -s "$selected_name" -c "$selected"
+  exit 0
+fi
+
+if ! tmux has-session -t="$selected_name" 2>/dev/null; then
+  tmux new-session -ds "$selected_name" -c "$selected"
+fi
+
+if [[ -z $TMUX ]]; then
+  tmux attach -t "$selected_name"
+else
+  tmux switch-client -t "$selected_name"
+fi
