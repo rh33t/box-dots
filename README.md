@@ -1,10 +1,12 @@
 SSH in, feel at home. My config on any Linux box I land on.
 
 ```bash
-git clone https://github.com/rh33t/box-dots && cd box-dots && ./install.sh
+git clone https://github.com/rh33t/box-dots ~/.dots && cd ~/.dots && ./install.sh
 ```
 
-Backs up what it replaces into `~/.box-dots-backup/<date>/`. `git pull` to update.
+Backs up what it replaces into a unique, private `~/.box-dots-backup/<date>.<suffix>/`.
+Requires owned, writable directories and rejects symlinked install directories.
+`git pull` to update.
 
 ## TERM / terminfo (optional)
 

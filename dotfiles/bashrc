@@ -78,8 +78,8 @@ alias dcd='docker compose down'
 alias dcl='docker compose logs -f'
 alias dce='docker compose exec'
 alias dclean='docker system prune -af --volumes'
-alias dccdi='docker rmi $(docker images -f "dangling=true" -q)'
-alias dccall='docker stop $(docker ps -aq) >/dev/null && docker rm $(docker ps -aq) >/dev/null'
+alias dccdi='docker image prune -f'
+alias dccall='docker ps -aq | xargs -r docker stop > /dev/null && docker ps -aq | xargs -r docker rm > /dev/null'
 
 # Python
 alias p='python3'
